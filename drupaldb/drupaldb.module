@@ -1,0 +1,195 @@
+<?php
+/**
+  * @file
+  * Use this module to learn about drupal's menu system
+  */
+
+ /**
+ * Implementation of hook_menu()
+ */
+ function drupaldb_menu()
+ {
+	$items['db1'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'db1_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['db2'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'db2_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['db3'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'db3_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['db4'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'db4_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['db5'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'db5_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['db6'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'db6_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['db7'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'db7_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['db8'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'db8_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+ 	return $items;
+ }
+
+ function db1_callback()
+ {
+ 	$records = db_query("SELECT count(nid) FROM {joker}")->fetchField();
+
+ 	return t('Number of records: @records', array('@records' => $records));
+ }
+
+ function db2_callback()
+ {
+ 	$nid = db_insert('joker')
+ 		->fields(array(
+ 			'nid' => '4',
+ 			'vid' => '1',
+ 			'punchline' => 'Clavame duro'
+ 		))->execute();
+
+ 	return t('INSERT result: @nid', array('@nid' => $nid));
+ }
+
+ function db3_callback()
+ {
+ 	$type = 'blog';
+ 	$status = 1;
+
+	$result = db_query("SELECT nid, title FROM {node} WHERE type = :type AND status = :status", array(':type' => $type, ':status' => 1));
+ 	//$result = db_query('SELECT n.nid, n.title, n.created FROM {node} n WHERE n.uid = :uid', array(':uid' => 1));
+
+ 	dpm($result);
+
+ 	foreach ($result as $hello) {
+ 		dpm($hello);
+ 	}
+
+ 	return t('Hola');
+ }
+
+ function db4_callback()
+ {
+ 	$query = db_select('role', 'r');
+
+ 	$test = $query->condition('rid', 2)->fields('r', array('name'));
+
+ 	$result = $query->execute();
+
+ 	foreach ($result as $row) {
+ 		dpm($row);
+ 	}
+
+ 	return t('Hola');
+ }
+
+ function db5_callback()
+ {
+ 	$query = db_select('node', 'n');
+
+ 	$test = $query->condition('type', 'article')->fields('n', array('title'))->range(0,2);
+
+ 	$result = $query->execute();
+
+ 	foreach ($result as $row) {
+ 		dpm($row);
+ 	}
+
+ 	return t('Hola');
+ }
+
+ function db6_callback()
+ {
+ 	$query = db_select('node', 'n')->extend('PagerDefault');
+
+ 	$test = $query->condition('type', 'article')
+ 				  ->fields('n', array('title'))
+ 				  ->limit(5);
+
+ 	$result = $query->execute();
+
+ 	$output = '';
+
+ 	foreach ($result as $row) {
+ 		$output .= $row->title . "<br/>";
+ 	}
+
+ 	$output .= theme('pager');
+
+ 	print $output;
+ }
+
+ function db7_callback()
+ {
+ 	$query = db_select('node', 'n');
+
+ 	$test = $query->condition('type', 'article')
+ 				  ->fields('n', array('title'))
+ 				  ->orderBy('title', 'ASC');
+
+ 	$result = $query->execute();
+
+ 	$output = '';
+
+ 	foreach ($result as $row) {
+ 		$output .= $row->title . "<br/>";
+ 	}
+
+ 	print $output;
+
+ 	return t('Holi');
+ }
+
+ function db8_callback()
+ {
+ 	//use other database
+ 	db_set_active('pruebasdb');
+
+ 	$result = db_query("SELECT * FROM cities");
+
+  	dpm($result);
+
+ 	foreach ($result as $hello) {
+ 		dpm($hello);
+ 	}
+
+ 	db_set_active('default');
+
+ 	return t('Holi');
+ }

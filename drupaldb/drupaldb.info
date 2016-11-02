@@ -1,0 +1,5 @@
+name = Drupal DB
+description = Just a script to test db files
+package = Pro Drupal Development
+core = 7.x
+files[] = drupaldb.module
