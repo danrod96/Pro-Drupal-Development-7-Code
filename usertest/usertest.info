@@ -1,0 +1,5 @@
+name = User Test
+description = A module for testing user hooks
+package = Pro Drupal Development
+core = 7.x
+files[] = usertest.module

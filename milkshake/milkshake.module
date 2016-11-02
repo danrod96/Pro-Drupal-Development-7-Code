@@ -1,0 +1,64 @@
+<?php
+
+/***
+ * @file
+ */
+function milkshake_menu()
+{
+	$items['milkshake'] = array(
+		'title' => 'Milkshake flavours',
+		'access arguments' => TRUE,
+		'page callback' => 'milkshake_overview',
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+	$items['milkshake/list'] = array(
+		'title' => 'List flavors',
+		'access arguments' => TRUE,
+		'type' => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => 0,
+	);
+
+	$items['milkshake/add'] = array(
+		'title' => 'Add flavor',
+		'access arguments' => TRUE,
+		'page callback' => 'milkshake_add',
+		'type' => MENU_LOCAL_TASK,
+		'weight' => 1,
+	);
+
+	$items['milkshake/list/fruity'] = array(
+		'title' => 'F',
+		'access arguments' => TRUE,
+		'type' => MENU_LOCAL_TASK,
+		'page callback' => 'milkshake_list',
+		'page arguments' => array(2),
+	);
+
+	$items['milkshake/list/candy'] = array(
+		'title' => 'F',
+		'access arguments' => TRUE,
+		'type' => MENU_LOCAL_TASK,
+		'page callback' => 'milkshake_list',
+		'page arguments' => array(2),
+	);
+
+	return $items;
+}
+
+function milkshake_overview() 
+{
+	$output = t('The following flavors are available...');
+
+	return $output;
+}
+
+function milkshake_add() 
+{
+	return t('A handy form to add flavors might go here...');
+}
+
+function milkshake_list($type) 
+{
+	return t('List @type flavors', array('@type' => $type));
+}

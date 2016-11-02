@@ -1,0 +1,41 @@
+<?php
+/**
+  * @file
+  * Use this module to learn about user hooks
+  */
+
+function usertest_menu()
+{
+	$items['usertest1'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'usertest1_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	return $items;
+}
+
+function usertest1_callback()
+{
+	global $user;
+
+	dpm($user);
+
+	if (user_is_logged_in()){
+		$output = t("User is logged in.");
+	} else {
+		$output = t("User NOT logged in");
+	}
+
+	return $output;
+}
+
+/**
+ * Implements hook_user_view().
+ */
+function usertest_user_view($account, $view_mode = 'full') {
+
+unset($account->content['summary']['blog']);
+
+}

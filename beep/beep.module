@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * @file
+ * Provide a simulated beep.
+ */
+
+function beep_beep()
+{
+	watchdog('beep', 'Beep!');
+}
+
+function beep_beep2()
+{
+	watchdog('beep', 'Beep Article deleted!');
+}
+
+/**
+ * Simulate a beep. A Drupal action.
+ */
+function beep_beep_action()
+{
+	beep_beep();
+}
+
+function beep_action_info()
+{
+	return array(
+		'beep_beep_action' => array(
+			'type' => 'system',
+			'label' => t('Beep in any way'),
+			'configurable' => FALSE,
+			'triggers' => array('node_view', 'node_insert', 'node_update', 'node_delete'),
+		),
+		'beep_multiple_beep_action' => array(
+			'type' => 'system',
+			'label' => t('Beep multiple times'),
+			'configurable' => TRUE,
+			'triggers' => array('node_view', 'node_insert', 'node_update', 'node_delete'),
+		),
+	);
+}
+
+/**
+ * Form for configurable Drupal action to beep multiple times
+ */
+function beep_multiple_beep_action_form($context)
+{
+	$form['beeps'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Number of beeps'),
+		'#description' => t('Enter the number of times to beep when this action executes'),
+		'#default_value' => isset($context['beeps']) ? $context['beeps'] : '1',
+		'#required' => TRUE,
+	);
+
+	return $form;
+}
+
+function beep_multiple_beep_action_validate($form, $form_state)
+{
+	$beeps = $form_state['values']['beeps'];
+
+	dpm($beeps);
+
+	if (!is_numeric($beeps)){
+		form_set_error('beeps', t('Not Int: Please enter a whole number between 0 and 10.'));
+	} else if ((int) $beeps > 10) {
+		form_set_error('beeps', t('Greater than 10: Please enter a whole number between 0 and 10.'));
+	} else if ((int) $beeps  < 0) {
+		form_set_error('beeps', t('That would cause a problem, posivite number'));
+	}
+}
+
+function beep_multiple_beep_action_submit($form, $form_state)
+{
+	return array(
+		'beeps' => (int) $form_state['values']['beeps']
+	);
+}
+
+/**
+ * Configurable action. Beeps an x number of times
+ */
+function beep_multiple_beep_action($object, $context)
+{
+	for ($i = 0; $i < $context['beeps']; $i++){
+		beep_beep2();
+	}
+}

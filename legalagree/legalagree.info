@@ -1,0 +1,5 @@
+name = Legal Agreement
+description = Displays Drupal legal agreement
+package = Pro Drupal Development
+core = 7.x
+files[] = legalagree.module

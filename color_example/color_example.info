@@ -1,0 +1,6 @@
+name = Color Example
+description = Custom Field example
+package = Pro Drupal Development
+core = 7.x
+files[] = color_example.module
+php = 5.2

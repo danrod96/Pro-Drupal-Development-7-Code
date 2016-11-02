@@ -1,0 +1,5 @@
+name = Schema Sample
+description = Schema sample module
+package = Pro Drupal Development
+core = 7.x
+files[] = schemasample.module

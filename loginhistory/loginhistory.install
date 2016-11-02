@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * Implements hook_schema()
+ */
+function loginhistory_schema()
+{
+	$schema['login_history'] = array(
+		'description' => 'Stores info about user logins',
+		'fields' => array(
+			'uid' => array(
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'description' => 'User uid',
+			),
+			'login' => array(
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'description' => 'Unix timestamp',
+			),
+		),
+		'indexes' => array(
+			'uid' => array('uid'),
+		),
+	);
+
+	return $schema;
+}

@@ -1,0 +1,36 @@
+<?php
+/**
+  * @file
+  * Save login history
+  */
+
+/**
+ * Implements hook_user_login
+ */
+function loginhistory_user_login(&$edit, $account)
+{
+	//insert a new record each time user logs in
+	$nid = db_insert('login_history')->fields(array(
+		'uid' => $account->uid,
+		'login' => $account->login
+	))->execute();
+}
+
+/**
+ * Implements hook_user_view_alter
+ */
+function loginhistory_user_view_alter(&$build)
+{
+	global $user;
+
+	//count the number of logins for the user
+	$login_count = db_query("SELECT COUNT(*) FROM {login_history} WHERE uid = :uid", array(':uid' => $user->uid))->fetchField();
+
+	//update user page
+	$build['summary']['login_history'] = array(
+		'#type' => 'user_profile_item',
+		'#title' => t('Number of logins'),
+		'#markup' => $login_count,
+		'#weight' => 10,
+	);
+}

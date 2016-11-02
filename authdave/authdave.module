@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * Implements hook_form_alter()
+ * We replace the local login validation handler with our own
+ */
+function authdave_form_alter(&$form, &$form_state, $form_id)
+{
+	if ($form_id == 'user_login' || $form_id == 'user_login_block'){
+		//callback to the validating function
+		$form['#validate'][] = 'authdave_user_form_validate';
+	}
+}
+
+function authdave_user_form_validate($form, &$form_state)
+{
+	if (!authdave_authenticate($form_state)){
+		form_set_error('name', t('Username not recognized'));
+	}
+}
+
+function authdave_authenticate($form_state)
+{
+	$username = $form_state['input']['name'];
+	$testname = strstr(strtolower($username), 0, 4);
+
+	if ($testname == "dave"){
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+

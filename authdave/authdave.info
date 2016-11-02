@@ -1,0 +1,5 @@
+name = Authenticate Dave
+description = Module that authenticates Dave
+package = Pro Drupal Development
+core = 7.x
+files[] = authdave.module

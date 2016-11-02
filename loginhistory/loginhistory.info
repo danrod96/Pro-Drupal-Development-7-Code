@@ -1,0 +1,5 @@
+name = Login History
+description = Login History Sample
+package = Pro Drupal Development
+core = 7.x
+files[] = loginhistory.module

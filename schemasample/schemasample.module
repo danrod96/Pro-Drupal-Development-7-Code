@@ -1,0 +1,53 @@
+<?php
+/**
+  * @file
+  * Use this module to learn about drupal database schema
+  */
+
+function schemasample_menu()
+{
+	$items['city1'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'city1_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['city2'] = array(
+		'title' => 'Greeting',
+		'page callback' => 'city2_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	return $items;
+}
+
+ function city1_callback()
+ {
+ 	$table = 'cities';
+
+ 	$record = new stdClass();
+ 	$record->name = t('Bogota');
+
+ 	drupal_write_record($table, $record);
+
+ 	watchdog('cities', 'Added city with id %id', array('%id' => $record->cid));
+
+ 	return t('Added city');
+ }
+
+ function city2_callback()
+ {
+ 	$table = 'cities';
+
+ 	$record = new stdClass();
+ 	$record->cid = 1;
+ 	$record->name = t('Bucaramanga');
+
+ 	drupal_write_record($table, $record);
+
+ 	watchdog('cities', 'Added city with id %id', array('%id' => $record->cid));
+
+ 	return t('Added city');
+ }

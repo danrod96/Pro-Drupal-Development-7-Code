@@ -1,0 +1,56 @@
+<?php
+/**
+  * @file
+  * Use this module to learn about drupal's user system
+  */
+
+/**
+ * Implements hook_form_alter()
+ */
+function legalagree_form_alter(&$form, &$form_state, $form_id)
+{
+	// check to see if the form is the user registration or user profile form
+	// if not then return and don’t do anything and return
+	// the form the user is viewing
+	if (!($form_id == "user_register_form" || $form_id == "user_profile_form")){
+		return;
+	}
+
+	//add a new validate function for handling the legal agreement
+	$form['#validate'][] = "legalagree_user_form_validate";
+
+	//add a field set to wrap the legal agreement
+	$form['account']['legal_agreement'] = array(
+		'#type' => 'fieldset',
+		'#title' => t('Legal Agreement')
+	);
+
+	//add the legal agreement stuff
+	$form['account']['legal_agreement']['decision'] = array(
+		'#type' => 'radios',
+		'#description' => t('You will work interactively with a small team and independently on projects designing websites for various clients. You will be required to use PHP, CSS, HTML, MySQL, JavaScript, jQuery, phpMyAdmin and JetBrains IDE in your daily work. You will be involved in the implementation and maintenance of websites and be required to use creative programming and debugging skills on various projects.'),
+		'#default_value' => 0,
+		'#options' => array(t('I Agree'), t('I disagree'))
+	);
+}
+
+/**
+ * Form validation handler
+ */
+function legalagree_user_form_validate($form, &$form_state)
+{
+	global $user;
+
+	print_r($user);
+
+	//print_r($form_state);
+
+	echo "Yoooo" . $form_state['input']['decision'];
+
+	//user agreed?
+	if ($form_state['input']['decision'] == 1){
+		form_set_error('decision', t('You must agree with the legal Agreement'));
+	} else {
+		watchdog('user', t('User agreed with it'));
+	}
+}
