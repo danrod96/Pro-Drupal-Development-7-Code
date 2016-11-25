@@ -1,0 +1,8 @@
+<?php
+/**
+ * @file
+ * Provide a character for the breadcrumb delimiter
+ */
+function crumbpicker_preprocess_breadcrumb(&$variables){
+	$variables['breadcrumb_delimiter'] = 'Pasiva';
+}
