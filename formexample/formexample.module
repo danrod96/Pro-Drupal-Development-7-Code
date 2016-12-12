@@ -1,0 +1,223 @@
+<?php
+/**
+ * @file
+ *
+ * Play with the Form API.
+ */
+
+/**
+ * Implements hook_theme()
+ */
+function formexample_theme()
+{
+	return array(
+		'formexample_nameform' => array(
+			'render element' => 'form',
+			'template' => 'formexample-nameform',
+		),
+	);
+}
+
+/**
+ * Assign the elements of the form to variables so
+ * the themer can use those values to control how the
+ * form elements are displayed, or alternatively
+ * displaying the whole form as constructed above.
+*/
+function template_preprocess_formexample_nameform(&$variables)
+{
+	$variables['formexample_nameform'] = array();
+	$hidden = array();
+
+	foreach (element_children($variables['form']) as $key) {
+		$type = $variables['form'][$key]['#type'];
+		if ($type == 'hidden' || $type == 'token'){
+			$hidden[] = drupal_render($variables['form'][$key]);
+		} else {
+			$variables['formexample_nameform'][$key] = drupal_render($variables['form'][$key]);
+		}
+
+		//Hidden form elements have no value for themers
+		$variables['formexample_nameform']['hidden'] = implode($hidden);
+
+		//Collect all form elements to make it easier to print the whole form
+		$variables['formexample_nameform_form'] = implode($variables['formexample_nameform']);
+	}
+}
+
+/**
+ * Implements hook_menu()
+ */
+function formexample_menu()
+{
+	$items['formexample'] = array(
+		'title' => 'View the sample form',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('formexample_nameform'),
+		'access callback' => TRUE,
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+	return $items;
+}
+
+/**
+ * Define a form
+ */
+function formexample_nameform()
+{
+
+	$form['#method'] = 'post';
+	$form['#prefix'] = '<div class="formclass">';
+	$form['#suffix'] = '</div>';
+
+	$form['name'] = array(
+		'#title' => t('Your name'),
+		'#type' => 'fieldset',
+		'#description' => t('What people call you.')
+	);
+
+	$form['name']['user_name'] = array(
+		'#title' => t('Your Name'),
+		'#type' => 'textfield',
+		'#description' => t('Please enter your name'),
+	);
+
+	$form['color'] = array(
+		'#prefix' => '<hr />',
+		'#title' => t('Color'),
+		'#type' => 'fieldset',
+		'#suffix' => '<div class="privacy-warning">' . t('This information will be displayed publicly!') . '</div>',
+ 		'#description' => t('This fieldset contains the color field'),
+		'#collapsible' => TRUE,
+		'#collapsed' => FALSE
+	);
+
+	//color options
+	$form['color_options'] = array(
+		'#type' => 'value',
+		'#value' => array(t('red'), t('green'), t('blue'), t('yellow'))
+	);
+
+	$form['color']['favourite_color'] = array(
+		'#title' => t('Favourite Color'),
+		'#type' => 'select',
+		'#description' => t('Please select your favourite color'),
+		'#options' => $form['color_options']['#value']
+	);
+
+	$form['country'] = array(
+		'#title' => t('Country'),
+		'#type' => 'textfield',
+		'#description' => t('Enter your country.')
+	);
+
+	//create a placeholder filled during the validation
+	$form['country_code'] = array(
+		'#type' => 'value',
+		'#value' => ''
+	);
+
+	//Store the allowed choices in the form definition
+	$allowed_flavors = array(t('spicy'), t('sweet'));
+
+	$form['flavor'] = array(
+		'#type' => 'textfield',
+		'#title' => 'flavor',
+		'#allowed_flavors' => $allowed_flavors,
+		//special validator function
+		'#element_validate' => array('formexample_flavor_validate')
+	);
+
+	$form['submit'] = array(
+		'#type' => 	'submit',
+		'#value' => t('Submit Name')
+	);
+
+	return $form;
+}
+
+/**
+ * Validate the form
+ */
+function formexample_nameform_validate($form, &$form_state)
+{
+	if (empty($form_state['values']['user_name'])){
+		form_set_error('user_name', 'Name is empty.');
+	}
+
+	if ($form_state['values']['user_name'] == 'Testi'){
+		form_set_error('user_name', 'Testi is not allowed to use the form.');
+	}
+
+	$country_code = formexample_find_country_code($form_state['values']['country']);
+
+	if ($country_code){
+		form_set_value($form['country_code'], $country_code, $form_state);
+	}
+
+	//In case you wanna rebuild the form again complete with the information you have entered
+	//x$form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Implements hook_form_alter()
+ * 
+ * This form is used to alter any form on Drupal
+ */
+function formexample_form_alter(&$form, &$form_state, $form_id)
+{
+	//This code gets called for every form Drupal builds; use an if instance to respond to the form that
+	//you need
+	if ($form_id == 'user_login_block' || $form_id == 'user_login'){
+		$form['warning'] = array(
+			'#markup' => t('We log all login attempts'),
+			'#weight' => -5,
+		);
+
+		//Change 'Log In' to 'Sign in'
+		$form['submit']['#value'] = t('Sign in');
+	}
+}
+
+function formexample_flavor_validate($element, $form_state)
+{
+	if (!in_array($form_state['values']['flavor'], $element['#allowed_flavors'])){
+		form_error($element, t('You must enter spicy or sweet'));
+	}
+}
+
+/**
+ * Submit
+ */
+function formexample_nameform_submit($form, &$form_state)
+{
+	$name = $form_state['values']['user_name'];
+	drupal_set_message(t('Thanks for filling out the form, %name', array('%name' => $name)));
+
+	$color_key = $form_state['values']['favourite_color'];
+	$color = $form_state['values']['color_options'][$color_key];
+
+	drupal_set_message(t('%name loves the colour %color!', array('%name' => $name, '%color' => $color)));
+
+	drupal_set_message(t('Your country is %country', array('%country' => $form_state['values']['country_code'])));
+
+	dpm($form_state);
+	dpm($form);
+}
+
+/**
+ * Test function
+ */
+function formexample_find_country_code($country)
+{
+	switch ($country) {
+		case 'Colombia':
+			return 'CO';
+			break;
+		
+		default:
+			return 'NaN';
+			break;
+	}
+}

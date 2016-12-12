@@ -1,0 +1,106 @@
+<?php
+/**
+ * @file
+ * An example of a dynamic form
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function form_example_dynamic_menu()
+{
+	$items['form_example_dynamic'] = array(
+		'title' => t('Form Example Dynamic Form'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('form_example_dynamic_form'),
+		'access callback' => TRUE,
+		'type' => MENU_NORMAL_ITEM
+	);
+
+	return $items;
+}
+
+function form_example_dynamic_form($form, &$form_state)
+{
+	$form['room_type'] = array(
+		'#type' => 'radios',
+		'#options' => drupal_map_assoc(array(t('Study Room'), t('Small Conference Room'), t('Board Room'))),
+		'#title' => t('What type of room do you need?')
+	);
+
+	$form['study_room'] = array(
+		'#type' => 'fieldset',
+		'#title' => t('Study Room Details'),
+		'#states' => array(
+			'visible' => array(
+				':input[name="room_type"]' => array('value' => t('Study Room')),
+			),
+		), 
+	);
+
+	$form['study_room']['equipment'] = array(
+		'#type' => 'checkboxes',
+		'#options' => drupal_map_assoc(array(t('Chairs'), t('PC'))),
+		'#title' => t('What equipment do you need?'),
+		'#states' => array( //action to take
+			'visible' => array(
+				':input[name="room_type"]' => array('value' => t('Study Room')),
+			),
+		),
+	);
+
+	$form['study_room']['chairs'] = array(
+		'#type' => 'textfield',
+		'#title' => t('How many chairs do you need?:'),
+		'#size' => 4,
+		'#states' => array(
+			'visible' => array(
+				':input[name="equipment[Chairs]"]' => array('checked' => TRUE),
+			),
+		),
+	);
+
+	$form['study_room']['pc'] = array(
+		'#type' => 'textfield',
+		'#title' => t('What type of PC do you need?:'),
+		'#size' => 15,
+		'#states' => array(
+			'visible' => array(
+				':input[name="equipment[PC]"]' => array('checked' => TRUE),
+			),
+		),
+	);
+
+	$form['small_conference_room'] = array(
+		'#type' => 'fieldset',
+		'#title' => t('Small Conference Room Info'),
+		'#states' => array(
+			'visible' => array(
+				':input[name="room_type"]' => array('value' => t('Small Conference Room')),
+			),
+		), 
+	);
+
+	$form['small_conference_room']['how_many_pcs'] = array(
+		'#type' => 'select',
+		'#title' => t('How many PCs do you need in the conference room?:'),
+		'#options' => array(
+			1 => t('One'),
+			2 => t('Two'),
+			3 => t('Three'),
+			4 => t('Four'),
+		),
+	);
+
+	$form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => t('Submit your information'),
+	);
+
+	return $form;
+}
+
+function form_example_dynamic_form_submit($form, &$form_state)
+{
+	drupal_set_message(t('Submitting values: @values', array('@value' => var_export($form_state['values'], TRUE))));
+}
