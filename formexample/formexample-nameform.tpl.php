@@ -15,6 +15,17 @@
  print $variables['formexample_nameform']['name'];
  print $variables['formexample_nameform']['country'];
  print $variables['formexample_nameform']['flavor'];
+ print $variables['formexample_nameform']['pet_name'];
+ print $variables['formexample_nameform']['pass'];
+ print $variables['formexample_nameform']['pet_habits'];
+ print $variables['formexample_nameform']['pet_tail'];
+ print $variables['formexample_nameform']['date'];
+ print $variables['formexample_nameform']['tests'];
+ print $variables['formexample_nameform']['hiddenfield'];
+ print $variables['formexample_nameform']['deadline'];
+ print $variables['formexample_nameform']['picture'];
+ print $variables['formexample_nameform']['manufacturer_dropdown'];
+ print $variables['formexample_nameform']['model_dropdown'];
  print $variables['formexample_nameform']['submit'];
  print $variables['formexample_nameform']['hidden'];
  print '</div>';

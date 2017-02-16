@@ -1,0 +1,153 @@
+<?php
+/**
+ * Functions for testing the function API
+ */
+
+function filefuncs_menu()
+{
+	$items['filetest1'] = array(
+		'title' => 'File Test 1',
+		'page callback' => 'filetest1_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+
+	$items['filetest2'] = array(
+		'title' => 'File Test 2',
+		'page callback' => 'filetest2_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['formupload'] = array(
+		'title' => 'Upload form',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('formupload_sample'),
+		'access callback' => TRUE,
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+	$items['filesearch'] = array(
+		'title' => 'File Search',
+		'page callback' => 'filesearch_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['filesecure'] = array(
+		'title' => 'File Secure',
+		'page callback' => 'filesecure_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	return $items;
+}
+
+function filetest1_callback()
+{
+	$data = "Test infooooo\n";
+	$filename = "testfile.txt";
+	$dest = file_build_uri($filename);
+	file_save_data($data, $dest, FILE_EXIST_REPLACE);
+
+	return t('Archive created!');
+}
+
+function filetest2_callback()
+{
+	$directory = 'sites/default/files';
+
+	if (file_prepare_directory($directory, $options = FILE_MODIFY_PERMISSIONS)){
+		return t("This @dir exist", array('@dir' => $directory));
+	} else {
+		return t("This @dir DOES NOT exist", array('@dir' => $directory));
+	}
+}
+
+function filesearch_callback()
+{
+	$found = file_scan_directory('sites/default', '/.*\.jpg$/');
+
+	dpm($found);
+
+	return t("hola");
+}
+
+function filesecure_callback()
+{
+	//$extensions = array("jpg jpeg gif png txt doc xls pdf ppt pps odt ods odp");
+
+	//$filename = file_munge_filename($filename, $extensions, FALSE);
+
+	dpm(file_space_used());
+
+	return t("holii");
+}
+
+/* define a form */
+function formupload_sample($form, &$form_state)
+{
+	$form['#method'] = 'post';
+	$form['#attributes'] = array('enctype' => "multipart/form-data");
+
+	//file upload sample
+	$form['picture_prof'] = array(
+		'#name' => 'files[picture_prof]',
+		'#type' => 'file',
+		'#title' => t('Upload picture'),
+		'#size' => 40,
+		'#description' => t('Submit picture')
+	);
+
+	$form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => t('Submit file')
+	);
+
+	return $form;
+}
+
+/* validate the form */
+function formupload_sample_validate($form, &$form_state)
+{
+	//handle file uploading
+	$validators = array(
+	   'file_validate_is_image' => array(),
+	   'file_validate_image_resolution' => array('124x124'), 
+	   'file_validate_size' => array(30 * 1024),
+	);
+
+    $file = file_save_upload('picture_prof', $validators, 'public://');
+
+ 	dpm($form_state);
+	dpm($form);
+
+    dpm($file);
+
+    $form_state['values']['picture_prof'] = $file;
+}
+
+/* submit the form */
+function formupload_sample_submit($form, &$form_state)
+{
+	dpm($form_state);
+	dpm($form);
+
+	dpm("After a while");
+
+	$file = $form_state['values']['picture_prof'];
+
+	dpm($file);
+
+	$file->status = FILE_STATUS_PERMANENT;
+
+	file_save($file);
+
+	dpm("lets see");
+
+	dpm($file);
+
+	dpm(file_create_url($file->uri));
+}

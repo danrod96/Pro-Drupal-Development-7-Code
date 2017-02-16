@@ -1,0 +1,4 @@
+name = Term Test
+description = Module for testing taxonomy stuff
+package = Pro Drupal Development
+core = 7.x

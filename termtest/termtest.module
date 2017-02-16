@@ -1,0 +1,172 @@
+<?php
+/**
+ * Module for testing taxonomy stuff
+ */
+
+function termtest_menu()
+{
+	$items['termtest1'] = array(
+		'title' => 'Term Test 1',
+		'page callback' => 'termtest1_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['termtest2'] = array(
+		'title' => 'Term Test 1',
+		'page callback' => 'termtest2_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['termtest3'] = array(
+		'title' => 'Term Test 1',
+		'page callback' => 'termtest3_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['termtest4'] = array(
+		'title' => 'Term Test 1',
+		'page callback' => 'termtest4_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['termtest5'] = array(
+		'title' => 'Term Test 1',
+		'page callback' => 'termtest5_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['termtest6'] = array(
+		'title' => 'Term Test 1',
+		'page callback' => 'termtest6_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['termtest7'] = array(
+		'title' => 'Term Test 1',
+		'page callback' => 'termtest7_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['termtest8'] = array(
+		'title' => 'Term Test 1',
+		'page callback' => 'termtest8_callback',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	return $items;
+}
+
+function termtest1_callback()
+{
+	$nid = 27;
+
+	$node = node_load($nid);
+
+	$result = field_view_field('node', $node, 'field_types', array('default'));
+
+	dpm($result);
+
+	print render($result);
+
+	return t('Test');
+}
+
+function termtest2_callback()
+{
+	$tids = array(5, 4);
+	//selects nodes associated with those tids
+	$result = taxonomy_select_nodes($tids);
+	$titles = array();
+
+	foreach ($result as $nid) {
+		$node = node_load($nid);
+		$titles[] = $node->title;
+	}
+
+	dpm($titles);
+
+	return t('Test');
+}
+
+function termtest3_callback()
+{
+	//returns the vocabulary object associated with that vid
+	$tags = taxonomy_get_vocabularies(1);
+
+	dpm($tags);
+
+	return t('Test');
+}
+
+function termtest4_callback()
+{
+	$new_vocab = (object) array(
+		'name' => 'Test Vocabulary',
+		'description' => 'Test Vocabulary to learn',
+		'machine_name' => 'test_vocabulary'
+	);
+
+	$res = taxonomy_vocabulary_save($new_vocab);
+
+	dpm($res);
+
+	return t('Test');
+}
+
+function termtest5_callback()
+{
+	$tid = 5;
+
+	$term = taxonomy_term_load($tid);
+
+	dpm($term);
+
+	return t('Test');
+}
+
+function termtest6_callback()
+{
+	$name = "CSS3";
+
+	$res = taxonomy_get_term_by_name($name);
+
+	dpm($name);
+
+	return t('Test');
+}
+
+function termtest7_callback()
+{
+	//create new term
+
+	$new_term = (object) array(
+		'name' => 'MongoDB',
+		'vid' => 1,
+	);
+
+	$res = taxonomy_term_save($new_term);
+
+	dpm($res);
+
+	return t('Test');
+}
+
+function termtest8_callback()
+{
+	//get taxonomy tree
+	$vid = 1;
+
+	$res = taxonomy_get_tree($vid);
+
+	dpm($res);
+
+	return t('Test');
+}

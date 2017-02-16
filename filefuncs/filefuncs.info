@@ -1,0 +1,4 @@
+name = filefuncs
+description = Many samples from the file API
+package = Pro Drupal Development
+core = 7.x

@@ -64,23 +64,28 @@ function formexample_menu()
 /**
  * Define a form
  */
-function formexample_nameform()
+function formexample_nameform($form, &$form_state)
 {
+	global $user;
 
 	$form['#method'] = 'post';
 	$form['#prefix'] = '<div class="formclass">';
 	$form['#suffix'] = '</div>';
+	$form['#attributes'] = array('class' => 'testclass2');
+	$form['#attributes']['enctype'] = "multipart/form-data";
 
 	$form['name'] = array(
 		'#title' => t('Your name'),
 		'#type' => 'fieldset',
-		'#description' => t('What people call you.')
+		'#description' => t('What people call you.'),
+		'#weight' => -2
 	);
 
 	$form['name']['user_name'] = array(
 		'#title' => t('Your Name'),
 		'#type' => 'textfield',
 		'#description' => t('Please enter your name'),
+		'#default_value' => 'Testname',
 	);
 
 	$form['color'] = array(
@@ -109,7 +114,8 @@ function formexample_nameform()
 	$form['country'] = array(
 		'#title' => t('Country'),
 		'#type' => 'textfield',
-		'#description' => t('Enter your country.')
+		'#description' => t('Enter your country.'),
+		'#default_value' => 'Colombia',
 	);
 
 	//create a placeholder filled during the validation
@@ -128,6 +134,153 @@ function formexample_nameform()
 		//special validator function
 		'#element_validate' => array('formexample_flavor_validate')
 	);
+
+	//example of a text field
+	$form['pet_name'] = array(
+		'#title' => t('Name'),
+		'#type' => 'textfield',
+		'#description' => t('Enter your pet name'),
+		'#maxlength' => 60,
+	);
+
+	//example of a password field
+	$form['pass'] = array(
+		'#type' => 'password_confirm',
+		//'#title' => t('Password'),
+		'#maxlength' => 60,
+		'#size' => 15,
+		'#required' => TRUE,
+	);
+
+	//example of a textarea field
+	$form['pet_habits'] = array(
+		'#title' => t('Habits'),
+		'#type' => 'textarea',
+		'#description' => t('Describe the habits of your pet'),
+		'#cols' => 40,
+		'#rows' => 6,
+	);
+
+	//example of a select with grouped options
+	$options = array(
+		array(
+			t('Healthy') => array(
+				1 => t('wagging'),
+				2 => t('breathing'),
+				3 => t('licking'),
+			),
+		),
+		array(
+			t('Not healthy') => array(
+				4 => t('doing nothing'),
+				5 => t('bleeding'),
+				6 => t('oozing'),
+			),
+		),
+	);
+
+	$form['pet_tail'] = array(
+		'#title' => t('Tail behaviour'),
+		'#type' => 'select',
+		'#description' => t('Pick one'),
+		'#options' => $options,
+		'#multiple' => FALSE,
+	);
+
+	//radio button example
+	$form['date'] = array(
+		'#type' => 'radios',
+		'#title' => t('What month'),
+		'#options' => array(
+			t('March'),
+			t('April'),
+			t('May')
+		),
+		'#description' => t('Please choose a month for travelling')
+	);
+
+	//checkboxes example
+	$options = array(
+		'Test 1' => t('Run Test 1'),
+		'Test 2' => t('Run Test 2'),
+		'Test 3' => t('Run Test 3')
+	);
+
+	$form['tests'] = array(
+		'#title' => t('Test Choice'),
+		'#type' => 'checkboxes',
+		'#description' => t('What kind of tests wanna run'),
+		'#options' => $options,
+		'#weight' => 25
+	);
+
+	//value sample
+	$form['uid'] = array(
+		'#type' => 'value',
+		'#value' => $user->uid
+	);
+
+	//hidden sample
+	$form['hiddenfield'] = array(
+		'#type' => 'hidden',
+		'#value' => t('Hidden value')
+	);
+
+	//date sample
+	$form['deadline'] = array(
+		'#title' => t('Deadline'),
+		'#type' => 'date',
+		'#description' => t('Please set the deadline.'),
+		//'#default_value' => array(
+		//),
+	);
+
+	//file upload sample
+	$form['picture'] = array(
+		'#type' => 'file',
+		'#title' => t('Upload picture'),
+		'#size' => 40,
+		'#description' => t('Submit picture')
+	);
+
+
+	//AJAX example
+
+	//get the list of manufacturers
+	$options_first = _automobile_get_manufacturer_dropdown_options();
+
+	// if we have a value for the manufacturer dropdown from
+    // $form_state['values'] we use this both as the default value for
+    // the first dropdown and also as a parameter to pass to the
+    // function that retrieves the options for the second dropdown.
+    $selected = isset($form_state['values']['manufacturer_dropdown']) ? $form_state['values']['manufacturer_dropdown'] : key($options_first);
+
+    $form['manufacturer_dropdown'] = array(
+    	'#type' => 'select',
+    	'#title' => 'Manufacturer',
+    	'#options' => $options_first,
+    	'#default_value' => $selected,
+		// bind an ajax callback to the change event (which is the default for the
+		// select form type) of the manufacturer dropdown. It will replace the
+		// model dropdown when rebuilt
+		'#ajax' => array(
+			'callback' => 'automobile_dependent_dropdown_callback',
+			'wrapper' => 'dropdown_model_replace',
+		),
+    );
+
+    $form['model_dropdown'] = array(
+    	'#type' => 'select',
+    	'#title' => 'Model',
+		// The entire enclosing div created here gets replaced when manufacturer_dropdown
+		// is changed..
+		'#prefix' => '<div id="dropdown_model_replace">',
+		'#suffix' => '</div>',
+		// when the form is rebuilt during ajax processing, the $selected variable
+		// will now have the new value and so the models will change
+		'#options' => _automobile_get_model_dropdown_options($selected),
+		'#default_value' => isset($form_state['values']['model_dropdown']) ? $form_state['values']['model_dropdown'] : ''
+    );
 
 	$form['submit'] = array(
 		'#type' => 	'submit',
@@ -198,9 +351,31 @@ function formexample_nameform_submit($form, &$form_state)
 	$color_key = $form_state['values']['favourite_color'];
 	$color = $form_state['values']['color_options'][$color_key];
 
+	$pet_name = $form_state['values']['pet_name'];
+
+	$testschoice = array_filter($form_state['values']['tests']);
+
+	$useruid = $form_state['values']['uid'];
+
+	$hid = $form_state['values']['hiddenfield'];
+
+	$dateline = $form_state['values']['deadline'];
+
 	drupal_set_message(t('%name loves the colour %color!', array('%name' => $name, '%color' => $color)));
 
 	drupal_set_message(t('Your country is %country', array('%country' => $form_state['values']['country_code'])));
+
+	drupal_set_message(t('Your pet name is %pet_name', array('%pet_name' => $pet_name)));
+
+	dpm($testschoice);
+
+	dpm($useruid);
+
+	dpm($form_state['values']['picture']);
+
+	dpm($hid);
+
+	dpm($dateline);
 
 	dpm($form_state);
 	dpm($form);
@@ -220,4 +395,57 @@ function formexample_find_country_code($country)
 			return 'NaN';
 			break;
 	}
+}
+
+/**
+ * Selects just the model dropdown to be returned for re-rendering
+ *
+ * The version here has been re-loaded with a different set of options and
+ * is sent back to the page to be updated.
+ *
+ * @return renderable array (the second dropdown)
+ */
+function automobile_dependent_dropdown_callback($form, $form_state) 
+{
+	return $form['model_dropdown'];
+}
+
+/**
+ * Helper function to populate the manufacturer dropdown. This would normally be
+ * pulling data from the database.
+ *
+ * @return array of options
+ */
+
+function _automobile_get_manufacturer_dropdown_options() 
+{
+	// drupal_map_assoc() just makes an array('Strings' => 'Strings'...).
+	return drupal_map_assoc(array(t('Honda'), t('Toyota'), t('Ford'), t('Volkswagen')));
+}
+
+/**
+ * Helper function to populate the model dropdown. This would normally be
+ * pulling data from the database.
+ *
+ * @param key. This will determine which set of options is returned.
+ *
+ * @return array of options
+ */
+function _automobile_get_model_dropdown_options($key = '') 
+{
+	$options = array(
+
+		t('Honda') => drupal_map_assoc(array(t('Accord'), t('Civic'), t('CRX'), t('Pilot'))),
+		t('Toyota') => drupal_map_assoc(array(t('Camry'), t('Yaris'), t('Tundra'), t('Tacoma'))),
+		t('Ford') => drupal_map_assoc(array(t('F-150'), t('Explorer'), t('Escape'), t('Edge'))),
+		t('Volkswagen') => drupal_map_assoc(array(t('GTI'), t('Passat'), t('Jeta'), t('Polo'))),
+
+	);
+
+	if (isset($options[$key])) {
+		return $options[$key];
+	} else {
+		return array();
+	}
+
 }
